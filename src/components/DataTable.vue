@@ -20,7 +20,7 @@
             >
           </th>
           <th @click="() => orderBy(key)" v-for="key in Object.keys(tableData[0])" v-bind:key="key">
-            <span class="table__icon" v-if="currentOrder[key] === 'desc' ">
+            <span class="table-icon" v-if="currentOrder[key] === 'desc' ">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
                 <polygon
                   points="9 16.172 2.929 10.101 1.515 11.515 10 20 10.707
@@ -28,7 +28,7 @@
                 ></polygon>
               </svg>
             </span>
-            <span class="table__icon" v-if="currentOrder[key] === 'asc'">
+            <span class="table-icon" v-if="currentOrder[key] === 'asc'">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
                 <polygon
                   points="9 3.828 2.929 9.899 1.515 8.485 10 0 10.707 .707 
@@ -108,9 +108,41 @@
 
       <table class="table">
         <tr>
-          <th v-for="(name, index) in columnNames" :key="index">{{ name }}</th>
+          <th
+            @click="sortItemsBy(columnName.key)"
+            v-for="(columnName, index) in columnNames"
+            :key="index"
+          >
+            <span class="table-icon" v-if="sort.key == columnName.key">
+              <svg
+                v-if="sort.order == 'desc'"
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 20 20"
+              >
+                <polygon
+                  points="9 16.172 2.929 10.101 1.515 11.515 10 20 10.707
+                19.293 18.485 11.515 17.071 10.101 11 16.172 11 0 9 0"
+                ></polygon>
+              </svg>
+              <svg v-else xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                <polygon
+                  points="9 3.828 2.929 9.899 1.515 8.485 10 0 10.707 .707 
+                18.485 8.485 17.071 9.899 11 3.828 11 20 9 20 9 3.828"
+                ></polygon>
+              </svg>
+            </span>
+            <span v-if="sort.key !== columnName.key" class="table-icon table-icon--faded">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                <polygon
+                  points="9 3.828 2.929 9.899 1.515 8.485 10 0 10.707 .707 
+                18.485 8.485 17.071 9.899 11 3.828 11 20 9 20 9 3.828"
+                ></polygon>
+              </svg>
+            </span>
+            {{ columnName.name }}
+          </th>
         </tr>
-        <tr v-for="item in items" :key="item.id">
+        <tr v-for="item in sortedItems" :key="item.id">
           <td>{{ item.name }}</td>
           <td>{{ item.age }}</td>
         </tr>
@@ -120,9 +152,40 @@
 </template>
 
 <script>
+import { orderBy } from "lodash";
+
 export default {
   name: "DataTable",
-  props: ["items", "columnNames"]
+  props: ["items", "columnNames"],
+  data() {
+    return {
+      sort: {
+        key: this.columnNames[0].key,
+        order: "asc"
+      },
+      localItems: [...this.items]
+    };
+  },
+  computed: {
+    sortedItems() {
+      let newItems = orderBy(this.localItems, this.sort.key, this.sort.order);
+      return newItems;
+    }
+  },
+  methods: {
+    sortItemsBy(key) {
+      if (key == this.sort.key) {
+        if (this.sort.order == "asc") {
+          this.sort.order = "desc";
+        } else {
+          this.sort.order = "asc";
+        }
+      } else {
+        this.sort.key = key;
+        this.sort.order = "asc";
+      }
+    }
+  }
 };
 </script>
 
@@ -183,13 +246,22 @@ export default {
   cursor: pointer;
 }
 
-.table__icon {
+.table-icon {
   width: 18px;
   height: 18px;
   position: absolute;
   left: 5px;
   top: 18px;
   fill: #b2b2b2;
+}
+
+.table-icon--faded {
+  fill: transparent;
+  transition: 0.2s all ease-in;
+}
+
+.table th:hover .table-icon--faded {
+  fill: rgba(201, 201, 230, 0.5);
 }
 
 .toolbar {

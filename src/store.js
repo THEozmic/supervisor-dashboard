@@ -6,7 +6,16 @@ Vue.use(Vuex);
 export default new Vuex.Store({
   strict: true,
   state: {
-    columnNames: ["Name", "Age (years)"],
+    columnNames: [
+      {
+        name: "Name",
+        key: "name"
+      },
+      {
+        name: "Age (years)",
+        key: "age"
+      }
+    ],
     animals: [
       {
         name: "Bingo",
