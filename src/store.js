@@ -6,6 +6,7 @@ Vue.use(Vuex);
 export default new Vuex.Store({
   strict: true,
   state: {
+    columnNames: ["Name", "Age (years)"],
     animals: [
       {
         name: "Bingo",
@@ -18,11 +19,6 @@ export default new Vuex.Store({
         id: 2
       }
     ]
-  },
-  getters: {
-    animals(state) {
-      return state.animals;
-    }
   },
   mutations: {
     deleteAnimal(state, name) {

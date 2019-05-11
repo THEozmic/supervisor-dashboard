@@ -7,12 +7,12 @@
         @click="deleteAnimal(animal)"
       >{{ animal.name }} is {{ animal.age }} years old</li>
     </ul>-->
-    <DataTable :items="animals"/>
+    <DataTable :columnNames="columnNames" :items="animals"/>
   </div>
 </template>
 
 <script>
-import { mapGetters, mapMutations } from "vuex";
+import { mapState, mapMutations } from "vuex";
 import DataTable from "./DataTable";
 
 export default {
@@ -21,7 +21,7 @@ export default {
     DataTable
   },
   computed: {
-    ...mapGetters(["animals"])
+    ...mapState(["animals", "columnNames"])
   },
   methods: {
     ...mapMutations(["deleteAnimal"])
@@ -30,5 +30,4 @@ export default {
 </script>
 
 <style scoped lang="scss">
-
 </style>

@@ -108,8 +108,7 @@
 
       <table class="table">
         <tr>
-          <th>Name</th>
-          <th>Age (years)</th>
+          <th v-for="(name, index) in columnNames" :key="index">{{ name }}</th>
         </tr>
         <tr v-for="item in items" :key="item.id">
           <td>{{ item.name }}</td>
@@ -123,7 +122,7 @@
 <script>
 export default {
   name: "DataTable",
-  props: ["items"]
+  props: ["items", "columnNames"]
 };
 </script>
 
