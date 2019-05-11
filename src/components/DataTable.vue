@@ -111,13 +111,9 @@
           <th>Name</th>
           <th>Age (years)</th>
         </tr>
-        <tr>
-          <td>Bingo</td>
-          <td>5</td>
-        </tr>
-        <tr>
-          <td>Charle</td>
-          <td>3</td>
+        <tr v-for="item in items" :key="item.id">
+          <td>{{ item.name }}</td>
+          <td>{{ item.age }}</td>
         </tr>
       </table>
     </div>
