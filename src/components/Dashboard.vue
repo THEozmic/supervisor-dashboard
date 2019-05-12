@@ -1,13 +1,6 @@
 <template>
   <div class="dashboard">
-    <!-- <ul>
-      <li
-        v-for="(animal, index) in animals"
-        :key="index"
-        @click="deleteAnimal(animal)"
-      >{{ animal.name }} is {{ animal.age }} years old</li>
-    </ul>-->
-    <DataTable :columnNames="columnNames" :items="animals"/>
+    <DataTable v-on:delete="handleDelete" :columnNames="columnNames" :items="animals" itemKey="id"/>
   </div>
 </template>
 
@@ -24,7 +17,10 @@ export default {
     ...mapState(["animals", "columnNames"])
   },
   methods: {
-    ...mapMutations(["deleteAnimal"])
+    ...mapMutations(["deleteAnimal"]),
+    handleDelete(item) {
+      // dispatch an action to delete from firebase and Vuex
+    }
   }
 };
 </script>

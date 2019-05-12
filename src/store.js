@@ -14,17 +14,29 @@ export default new Vuex.Store({
       {
         name: "Age (years)",
         key: "age"
+      },
+      {
+        name: "Color",
+        key: "color"
+      },
+      {
+        name: "Weight (kg)",
+        key: "weight"
       }
     ],
     animals: [
       {
         name: "Bingo",
         age: 2,
+        color: "Black",
+        weight: "5",
         id: 1
       },
       {
         name: "Charlie",
         age: 5,
+        color: "Brown",
+        weight: "35",
         id: 2
       }
     ]

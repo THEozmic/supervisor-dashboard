@@ -108,6 +108,9 @@
 
       <table class="table">
         <tr>
+          <th style="width: 85px">
+            <input type="checkbox" class="checkbox-item">
+          </th>
           <th
             @click="sortItemsBy(columnName.key)"
             v-for="(columnName, index) in columnNames"
@@ -141,10 +144,22 @@
             </span>
             {{ columnName.name }}
           </th>
+          <th style="width: 85px"></th>
         </tr>
         <tr v-for="item in sortedItems" :key="item.id">
-          <td>{{ item.name }}</td>
-          <td>{{ item.age }}</td>
+          <td>
+            <input type="checkbox" class="checkbox-item">
+          </td>
+          <td v-for="(content, index) in displayItem(item)" :key="index">{{ content }}</td>
+          <td>
+            <button class="delete-button" @click="deleteItem(item)">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                <path
+                  d="M6 2l2-2h4l2 2h4v2H2V2h4zM3 6h14l-1 14H4L3 6zm5 2v10h1V8H8zm3 0v10h1V8h-1z"
+                ></path>
+              </svg>
+            </button>
+          </td>
         </tr>
       </table>
     </div>
@@ -156,7 +171,7 @@ import { orderBy } from "lodash";
 
 export default {
   name: "DataTable",
-  props: ["items", "columnNames"],
+  props: ["items", "columnNames", "itemKey"],
   data() {
     return {
       sort: {
@@ -167,9 +182,11 @@ export default {
     };
   },
   computed: {
-    sortedItems() {
-      let newItems = orderBy(this.localItems, this.sort.key, this.sort.order);
-      return newItems;
+    sortedItems: {
+      get() {
+        let newItems = orderBy(this.localItems, this.sort.key, this.sort.order);
+        return newItems;
+      }
     }
   },
   methods: {
@@ -184,6 +201,20 @@ export default {
         this.sort.key = key;
         this.sort.order = "asc";
       }
+    },
+    displayItem(item = { ...item }) {
+      let newItem = {
+        ...item
+      };
+      delete newItem[this.itemKey];
+      return newItem;
+    },
+    deleteItem(item) {
+      this.localItems = this.localItems.filter(sortedItem => {
+        return sortedItem[this.itemKey] != item[this.itemKey];
+      });
+
+      this.$emit('delete', item)
     }
   }
 };
@@ -215,7 +246,7 @@ export default {
 .table th {
   text-align: left;
   border-bottom: 1px solid #efeded;
-  padding: 15px 30px;
+  padding: 20px 30px;
   position: relative;
 }
 
@@ -338,14 +369,13 @@ export default {
 
 .delete-button {
   border: 1px solid;
-  border-radius: 4px;
-  min-width: 80px;
+  border-radius: 50%;
+  width: 35px;
+  height: 35px;
   font-size: 16px;
-  text-transform: uppercase;
-  background-color: #e91e63;
-  color: #ffffff;
-  padding-top: 5px;
-  font-weight: bolder;
+  fill: #e91e63;
+  color: #e5e5e8;
+  padding: 10px;
   visibility: hidden;
   cursor: pointer;
 }

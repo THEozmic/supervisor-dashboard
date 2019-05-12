@@ -21,6 +21,7 @@ export default {
   box-sizing: border-box;
 
   font-family: "Hind Guntur", sans-serif;
+  line-height: 1;
 }
 
 body {
