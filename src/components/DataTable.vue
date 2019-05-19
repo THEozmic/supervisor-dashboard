@@ -178,14 +178,22 @@ export default {
         key: this.columnNames[0].key,
         order: "asc"
       },
-      localItems: [...this.items]
+      localItems: this.items
     };
+  },
+  watch: {
+    items() {
+      this.localItems = this.items;
+    }
   },
   computed: {
     sortedItems: {
       get() {
         let newItems = orderBy(this.localItems, this.sort.key, this.sort.order);
         return newItems;
+      },
+      set(value) {
+        this.localItems = value;
       }
     }
   },
@@ -210,11 +218,11 @@ export default {
       return newItem;
     },
     deleteItem(item) {
-      this.localItems = this.localItems.filter(sortedItem => {
+      this.sortedItems = this.sortedItems.filter(sortedItem => {
         return sortedItem[this.itemKey] != item[this.itemKey];
       });
 
-      this.$emit('delete', item)
+      this.$emit("delete", item);
     }
   }
 };

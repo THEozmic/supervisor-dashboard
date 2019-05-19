@@ -1,11 +1,19 @@
 <template>
   <div class="dashboard">
-    <DataTable v-on:delete="handleDelete" :columnNames="columnNames" :items="animals" itemKey="id"/>
+    <div style="text-align: right; padding: 20px 0;">
+      <button class="btn btn--blue btn--shadow" @click="reloadTable">Reload Data</button>
+    </div>
+    <DataTable
+      v-on:delete="deleteAnimal"
+      :columnNames="table.columnNames"
+      :items="table.animals"
+      :itemKey="table.itemKey"
+    />
   </div>
 </template>
 
 <script>
-import { mapState, mapMutations } from "vuex";
+import { mapState, mapMutations, mapActions } from "vuex";
 import DataTable from "./DataTable";
 
 export default {
@@ -14,13 +22,11 @@ export default {
     DataTable
   },
   computed: {
-    ...mapState(["animals", "columnNames"])
+    ...mapState(["table"])
   },
   methods: {
     ...mapMutations(["deleteAnimal"]),
-    handleDelete(item) {
-      // dispatch an action to delete from firebase and Vuex
-    }
+    ...mapActions(["reloadTable"])
   }
 };
 </script>
