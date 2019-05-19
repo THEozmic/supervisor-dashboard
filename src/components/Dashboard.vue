@@ -5,7 +5,8 @@
     </div>
     <DataTable
       v-on:delete="deleteAnimal"
-      :columnNames="table.columnNames"
+      v-on:edit="editAnimal"
+      :columns="table.columns"
       :items="table.animals"
       :itemKey="table.itemKey"
     />
@@ -25,7 +26,7 @@ export default {
     ...mapState(["table"])
   },
   methods: {
-    ...mapMutations(["deleteAnimal"]),
+    ...mapMutations(["deleteAnimal", "editAnimal"]),
     ...mapActions(["reloadTable"])
   }
 };

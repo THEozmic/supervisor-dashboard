@@ -8,14 +8,15 @@ export default new Vuex.Store({
   state: {
     table: {
       itemKey: "id",
-      columnNames: [
+      columns: [
         {
           name: "Name",
           key: "name"
         },
         {
           name: "Age (years)",
-          key: "age"
+          key: "age",
+          isEditable: true
         },
         {
           name: "Color",
@@ -23,7 +24,8 @@ export default new Vuex.Store({
         },
         {
           name: "Weight (kg)",
-          key: "weight"
+          key: "weight",
+          isEditable: true
         }
       ],
       animals: [
@@ -51,17 +53,21 @@ export default new Vuex.Store({
         animal => animal[itemKey] != item[itemKey]
       );
     },
+    editAnimal(state, payload) {
+      state.table.animals[payload.row][payload.column] = payload.value;
+    },
     reloadTable(state) {
       state.table = {
         itemKey: "id",
-        columnNames: [
+        columns: [
           {
             name: "Name",
             key: "name"
           },
           {
             name: "Age (years)",
-            key: "age"
+            key: "age",
+            isEditable: true
           },
           {
             name: "Color",

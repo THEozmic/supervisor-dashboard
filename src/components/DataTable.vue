@@ -111,12 +111,8 @@
           <th style="width: 85px">
             <input type="checkbox" class="checkbox-item">
           </th>
-          <th
-            @click="sortItemsBy(columnName.key)"
-            v-for="(columnName, index) in columnNames"
-            :key="index"
-          >
-            <span class="table-icon" v-if="sort.key == columnName.key">
+          <th @click="sortItemsBy(column.key)" v-for="(column, index) in columns" :key="index">
+            <span class="table-icon" v-if="sort.key == column.key">
               <svg
                 v-if="sort.order == 'desc'"
                 xmlns="http://www.w3.org/2000/svg"
@@ -134,7 +130,7 @@
                 ></polygon>
               </svg>
             </span>
-            <span v-if="sort.key !== columnName.key" class="table-icon table-icon--faded">
+            <span v-if="sort.key !== column.key" class="table-icon table-icon--faded">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
                 <polygon
                   points="9 3.828 2.929 9.899 1.515 8.485 10 0 10.707 .707 
@@ -142,20 +138,40 @@
                 ></polygon>
               </svg>
             </span>
-            {{ columnName.name }}
+            {{ column.name }}
           </th>
-          <th style="width: 85px"></th>
+          <th style="width: 150px"></th>
         </tr>
-        <tr v-for="item in sortedItems" :key="item.id">
+        <tr v-for="(item, row) in sortedItems" :key="item.id">
           <td>
             <input type="checkbox" class="checkbox-item">
           </td>
-          <td v-for="(content, index) in displayItem(item)" :key="index">{{ content }}</td>
+          <td v-for="(content, column) in displayItem(item)" :key="column">
+            <div class="table-content">
+              <span :class="`text${isEditable(column) ? ' text--editable' : ''}`">{{ content }}</span>
+              <span v-if="isEditable(column)" class="input-wrapper">
+                <input
+                  class="input"
+                  :value="content"
+                  @change="(e) => {
+                    editItem({value: e.target.value, row, column});
+                  }"
+                >
+              </span>
+            </div>
+          </td>
           <td>
-            <button class="delete-button" @click="deleteItem(item)">
+            <button class="action-btn delete-btn" @click="deleteItem(item)">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
                 <path
                   d="M6 2l2-2h4l2 2h4v2H2V2h4zM3 6h14l-1 14H4L3 6zm5 2v10h1V8H8zm3 0v10h1V8h-1z"
+                ></path>
+              </svg>
+            </button>
+            <button class="action-btn save-edit-btn" @click="saveEdit">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                <path
+                  d="M0 2C0 .9.9 0 2 0h14l4 4v14a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2zm5 0v6h10V2H5zm6 1h3v4h-3V3z"
                 ></path>
               </svg>
             </button>
@@ -171,14 +187,21 @@ import { orderBy } from "lodash";
 
 export default {
   name: "DataTable",
-  props: ["items", "columnNames", "itemKey"],
+  props: ["items", "columns", "itemKey"],
   data() {
     return {
       sort: {
-        key: this.columnNames[0].key,
+        key: this.columns[0].key,
         order: "asc"
       },
-      localItems: this.items
+      localItems: this.items,
+      editableColumns: this.columns
+        .filter(element => {
+          console.log(element);
+          return element.isEditable;
+        })
+        .map(element => element.key),
+      editItemPayload: {}
     };
   },
   watch: {
@@ -198,6 +221,9 @@ export default {
     }
   },
   methods: {
+    isEditable(column) {
+      return this.editableColumns.includes(column);
+    },
     sortItemsBy(key) {
       if (key == this.sort.key) {
         if (this.sort.order == "asc") {
@@ -218,11 +244,14 @@ export default {
       return newItem;
     },
     deleteItem(item) {
-      this.sortedItems = this.sortedItems.filter(sortedItem => {
-        return sortedItem[this.itemKey] != item[this.itemKey];
-      });
-
       this.$emit("delete", item);
+    },
+    editItem(payload) {
+      this.editItemPayload = payload;
+    },
+    saveEdit() {
+      this.$emit("edit", this.editItemPayload);
+      this.editItemPayload = {};
     }
   }
 };
@@ -241,6 +270,7 @@ export default {
   font-family: arial, sans-serif;
   border-collapse: collapse;
   width: 100%;
+  table-layout: fixed;
 }
 
 .empty-table-message {
@@ -283,6 +313,42 @@ export default {
 
 .table th {
   cursor: pointer;
+}
+
+.table-content .input {
+  padding: 0.75rem 0.5rem;
+  color: #4a5568;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  border: 1px;
+  border-radius: 0.25rem;
+  font-size: 100%;
+}
+
+.table-content .input:focus,
+.save-edit-btn:focus {
+  box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.5);
+  outline: 0;
+}
+
+.table-content > .text {
+  width: 100%;
+  display: block;
+}
+
+tr:hover .text--editable {
+  display: none;
+}
+
+.table-content .input-wrapper {
+  opacity: 0;
+  position: absolute;
+  top: 23%;
+  display: flex;
+}
+
+tr:hover .input-wrapper {
+  opacity: 1;
+  transition: 0.2s all ease-in;
 }
 
 .table-icon {
@@ -375,23 +441,30 @@ export default {
   transition: 0.2s all ease-in;
 }
 
-.delete-button {
-  border: 1px solid;
+.action-btn {
+  border: 1px;
   border-radius: 50%;
   width: 35px;
   height: 35px;
   font-size: 16px;
-  fill: #e91e63;
-  color: #e5e5e8;
   padding: 10px;
   visibility: hidden;
   cursor: pointer;
+  display: inline-block;
+  margin: 5px;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
 }
 
-.delete-button--visible {
-  visibility: visible;
-  margin: 0 20px;
-  padding: 8px;
+.edit-btn {
+  fill: #3490dc;
+}
+
+.delete-btn {
+  fill: #dc34a3;
+}
+
+.save-edit-btn {
+  fill: #3490dc;
 }
 
 .table tr:hover {
@@ -402,7 +475,7 @@ export default {
   border: 1px solid #cecccc;
 }
 
-.table tr:hover .delete-button {
+.table tr:hover .action-btn {
   visibility: visible;
 }
 
